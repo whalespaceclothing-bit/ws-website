@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Whalespace — Contemporary Apparel</title>
+  <meta name="description" content="Whalespace — minimal, sustainable apparel inspired by the ocean." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="index.html" aria-label="Whalespace home">Whalespace</a>
+
+      <nav class="nav" aria-label="Primary">
+        <a href="#shop">Shop</a>
+        <a href="#lookbook">Lookbook</a>
+        <a href="#about">About</a>
+        <a href="#contact">Contact</a>
+      </nav>
+
+      <div class="header-actions">
+        <button id="cart-toggle" class="icon-btn" aria-label="Open cart">🛍️ <span id="cart-count" class="cart-count">0</span></button>
+        <button id="menu-toggle" class="icon-btn" aria-label="Open menu">☰</button>
+      </div>
+    </div>
+
+    <div id="mobile-menu" class="mobile-menu" hidden>
+      <a href="#shop">Shop</a>
+      <a href="#lookbook">Lookbook</a>
+      <a href="#about">About</a>
+      <a href="#contact">Contact</a>
+    </div>
+  </header>
+
+  <main>
+    <!-- HERO -->
+    <section class="hero">
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <h1>Whalespace</h1>
+          <p class="lede">Ocean-born minimal apparel. Thoughtfully made. Quiet luxury for daily wear.</p>
+          <div class="hero-actions">
+            <a class="btn primary" href="#shop">Shop Collection</a>
+            <a class="btn ghost" href="#lookbook">View Lookbook</a>
+          </div>
+        </div>
+        <figure class="hero-media" aria-hidden="true">
+          <img src="https://picsum.photos/id/1011/900/600" alt="" loading="lazy">
+        </figure>
+      </div>
+    </section>
+
+    <!-- FEATURED -->
+    <section id="shop" class="section">
+      <div class="container">
+        <div class="section-head">
+          <h2>Featured</h2>
+          <p class="muted">Selected pieces from our current drop.</p>
+        </div>
+
+        <div id="product-grid" class="grid product-grid" aria-live="polite">
+          <!-- Products injected by script.js -->
+        </div>
+
+        <div class="section-foot">
+          <a class="btn outline" href="#" id="view-all">View all products</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- LOOKBOOK -->
+    <section id="lookbook" class="section bg-contrast">
+      <div class="container">
+        <h2>Lookbook</h2>
+        <p class="muted">A few curated shots from our archive.</p>
+        <div class="lookbook-grid">
+          <img src="https://picsum.photos/id/1025/800/900" alt="Lookbook image 1" loading="lazy">
+          <img src="https://picsum.photos/id/1027/800/900" alt="Lookbook image 2" loading="lazy">
+          <img src="https://picsum.photos/id/1031/800/900" alt="Lookbook image 3" loading="lazy">
+        </div>
+      </div>
+    </section>
+
+    <!-- ABOUT -->
+    <section id="about" class="section">
+      <div class="container about-grid">
+        <div>
+          <h2>About Whalespace</h2>
+          <p class="muted">Whalespace is a small independent clothing label focused on clean silhouettes, sustainable fabrics, and slow cycles. We design simple garments that work in any wardrobe — long lasting, minimal detailing, and made with care.</p>
+        </div>
+        <div class="about-stats">
+          <div><strong>100%</strong><span>Small batch</span></div>
+          <div><strong>Recycled</strong><span>Fabrics</span></div>
+          <div><strong>Ships</strong><span>Worldwide</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- NEWSLETTER -->
+    <section id="newsletter" class="section newsletter">
+      <div class="container newsletter-inner">
+        <div>
+          <h3>Join the list</h3>
+          <p class="muted">Be the first to hear about drops and exclusive offers.</p>
+        </div>
+        <form id="newsletter-form" class="newsletter-form" novalidate>
+          <label>
+            <span class="sr-only">Email address</span>
+            <input id="newsletter-email" type="email" placeholder="you@domain.com" required>
+          </label>
+          <button class="btn primary" type="submit">Subscribe</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section id="contact" class="section">
+      <div class="container">
+        <h2>Contact</h2>
+        <p class="muted">Questions about sizing, wholesale, or collaborations? Send us a message.</p>
+        <form id="contact-form" class="contact-form" novalidate>
+          <div class="form-row">
+            <label>
+              Name
+              <input type="text" name="name" required>
+            </label>
+            <label>
+              Email
+              <input type="email" name="email" required>
+            </label>
+          </div>
+          <label>
+            Message
+            <textarea name="message" rows="5" required></textarea>
+          </label>
+          <button class="btn primary" type="submit">Send message</button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <p>© <span id="year"></span> Whalespace. All rights reserved.</p>
+      <div class="social">
+        <a href="#" aria-label="Instagram">IG</a>
+        <a href="#" aria-label="TikTok">TT</a>
+        <a href="#" aria-label="Twitter">X</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- CART SIDEPANEL -->
+  <aside id="cart-panel" class="cart-panel" aria-hidden="true">
+    <header class="cart-header">
+      <h3>Your cart</h3>
+      <button id="cart-close" class="icon-btn" aria-label="Close cart">✕</button>
+    </header>
+    <div id="cart-items" class="cart-items" aria-live="polite"></div>
+    <div class="cart-footer">
+      <div class="cart-total"><span>Total</span><strong id="cart-total">$0.00</strong></div>
+      <button id="checkout" class="btn primary">Checkout</button>
+    </div>
+  </aside>
+
+  <div id="overlay" class="overlay" hidden></div>
+
+  <script src="script.js" defer></script>
+</body>
+</html>

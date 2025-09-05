@@ -1,0 +1,259 @@
+// Simple demo product data — change, add, or fetch from real backend
+const PRODUCTS = [
+  {
+    id: "ocean-tee",
+    title: "Ocean Tee",
+    price: 45,
+    currency: "USD",
+    img: "https://picsum.photos/id/1005/800/1000",
+    description: "Soft organic cotton tee with a relaxed fit. Subtle embroidered whale mark at hem."
+  },
+  {
+    id: "coastal-jacket",
+    title: "Coastal Jacket",
+    price: 160,
+    currency: "USD",
+    img: "https://picsum.photos/id/1012/800/1000",
+    description: "Lightweight shell with taped seams, minimal hardware, and clean lines."
+  },
+  {
+    id: "drift-trousers",
+    title: "Drift Trousers",
+    price: 120,
+    currency: "USD",
+    img: "https://picsum.photos/id/1020/800/1000",
+    description: "High-waist tailored trousers in a breathable fabric — wearable day to night."
+  }
+];
+
+// Utilities
+const $ = sel => document.querySelector(sel);
+const $$ = sel => Array.from(document.querySelectorAll(sel));
+const formatPrice = p => `$${p.toFixed(2)}`;
+
+// CART
+const Cart = {
+  key: "whalespace_cart_v1",
+  items: JSON.parse(localStorage.getItem("whalespace_cart_v1") || "[]"),
+  save() { localStorage.setItem(this.key, JSON.stringify(this.items)); updateCartUI(); },
+  add(product, qty = 1) {
+    const idx = this.items.findIndex(i => i.id === product.id);
+    if (idx >= 0) this.items[idx].qty += qty;
+    else this.items.push({ id: product.id, title: product.title, price: product.price, img: product.img, qty });
+    this.save();
+  },
+  remove(id) {
+    this.items = this.items.filter(i => i.id !== id);
+    this.save();
+  },
+  clear() { this.items = []; this.save(); }
+};
+
+// RENDER PRODUCTS (index)
+function renderProducts() {
+  const grid = $("#product-grid");
+  if (!grid) return;
+  grid.innerHTML = PRODUCTS.map(p => `
+    <article class="product-card" data-id="${p.id}">
+      <a class="product-thumb" href="product.html?id=${encodeURIComponent(p.id)}" aria-label="View ${p.title}">
+        <img src="${p.img}" alt="${p.title}" loading="lazy">
+      </a>
+      <div class="product-body">
+        <h3 class="product-title">${p.title}</h3>
+        <div class="product-price">${formatPrice(p.price)}</div>
+        <div style="margin-top:12px">
+          <button class="btn ghost add-btn" data-id="${p.id}">Add to cart</button>
+          <a class="btn outline" href="product.html?id=${encodeURIComponent(p.id)}">Details</a>
+        </div>
+      </div>
+    </article>
+  `).join("");
+}
+
+// PRODUCT PAGE (product.html)
+function renderProductPage() {
+  const el = $("#product-page");
+  if (!el) return;
+  const params = new URLSearchParams(location.search);
+  const id = params.get("id");
+  const product = PRODUCTS.find(p => p.id === id);
+  if (!product) {
+    el.innerHTML = `<p>Product not found. <a href="index.html">Return to shop</a></p>`;
+    return;
+  }
+  el.innerHTML = `
+    <div class="product-grid-single" style="display:grid;grid-template-columns:1fr 1fr;gap:22px">
+      <div>
+        <img src="${product.img}" alt="${product.title}" style="width:100%;border-radius:12px;box-shadow:0 8px 24px rgba(10,10,12,0.06)">
+      </div>
+      <div>
+        <h1 style="font-family:Playfair Display,serif">${product.title}</h1>
+        <div style="color:var(--muted);margin-bottom:18px">${formatPrice(product.price)}</div>
+        <p style="color:var(--muted);line-height:1.6">${product.description}</p>
+        <div style="margin-top:18px;display:flex;gap:12px">
+          <button id="add-to-cart" class="btn primary">Add to cart</button>
+          <button id="buy-now" class="btn ghost">Buy now</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  $("#add-to-cart").addEventListener("click", () => {
+    Cart.add(product, 1);
+    toast(`${product.title} added to cart`);
+  });
+  $("#buy-now").addEventListener("click", () => {
+    Cart.add(product, 1);
+    // For demo: open cart panel
+    openCart();
+  });
+}
+
+// CART UI
+function updateCartUI() {
+  const countEl = $("#cart-count");
+  const panelItems = $("#cart-items");
+  const totalEl = $("#cart-total");
+  const count = Cart.items.reduce((s, i) => s + i.qty, 0);
+  const total = Cart.items.reduce((s, i) => s + i.qty * i.price, 0);
+
+  if (countEl) countEl.textContent = count;
+  if (totalEl) totalEl.textContent = formatPrice(total);
+
+  if (panelItems) {
+    panelItems.innerHTML = Cart.items.length === 0 ? `<p class="muted">Your cart is empty.</p>` : Cart.items.map(it => `
+      <div class="cart-item">
+        <img src="${it.img}" alt="${it.title}">
+        <div style="flex:1">
+          <div style="font-weight:600">${it.title}</div>
+          <div class="muted">${formatPrice(it.price)} × ${it.qty}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">
+          <button class="icon-btn remove-item" data-id="${it.id}" aria-label="Remove ${it.title}">✕</button>
+        </div>
+      </div>
+    `).join("");
+    // attach remove handlers
+    $$(".remove-item").forEach(btn => btn.addEventListener("click", e => {
+      Cart.remove(btn.dataset.id);
+      toast("Removed item");
+    }));
+  }
+}
+
+// CART PANEL controls
+function openCart() {
+  $("#cart-panel").classList.add("open");
+  $("#cart-panel").setAttribute("aria-hidden", "false");
+  $("#overlay").hidden = false;
+}
+function closeCart() {
+  $("#cart-panel").classList.remove("open");
+  $("#cart-panel").setAttribute("aria-hidden", "true");
+  $("#overlay").hidden = true;
+}
+
+// Toast (simple)
+function toast(msg) {
+  const t = document.createElement("div");
+  t.textContent = msg;
+  Object.assign(t.style, {
+    position: "fixed",
+    left: "50%",
+    transform: "translateX(-50%)",
+    bottom: "28px",
+    background: "#0aa3c6",
+    color: "#fff",
+    padding: "10px 14px",
+    borderRadius: "10px",
+    zIndex: 9999,
+    boxShadow: "0 8px 20px rgba(10,10,12,0.12)"
+  });
+  document.body.appendChild(t);
+  setTimeout(() => { t.style.opacity = "0"; t.style.transition = "opacity .25s"; }, 1400);
+  setTimeout(() => t.remove(), 1700);
+}
+
+// Newsletter + contact demo handlers
+function wireForms() {
+  const nf = $("#newsletter-form");
+  if (nf) nf.addEventListener("submit", e => {
+    e.preventDefault();
+    const email = $("#newsletter-email").value.trim();
+    if (!email) return toast("Enter a valid email");
+    // Here you would POST to your API / Mail provider
+    nf.reset();
+    toast("Thanks — you'll hear from us.");
+  });
+
+  const cf = $("#contact-form");
+  if (cf) cf.addEventListener("submit", e => {
+    e.preventDefault();
+    // demo only
+    cf.reset();
+    toast("Message sent. We'll reply soon.");
+  });
+}
+
+// Mobile menu toggle
+function wireUI() {
+  const menuToggle = $("#menu-toggle");
+  const mobileMenu = $("#mobile-menu");
+  if (menuToggle) menuToggle.addEventListener("click", () => {
+    const open = mobileMenu.hidden;
+    mobileMenu.hidden = !open;
+    menuToggle.setAttribute("aria-expanded", String(open));
+  });
+
+  const cartToggle = $("#cart-toggle");
+  if (cartToggle) cartToggle.addEventListener("click", () => {
+    openCart();
+  });
+  $("#cart-close")?.addEventListener("click", closeCart);
+  $("#overlay")?.addEventListener("click", closeCart);
+
+  // Add to cart on product grid
+  $$(".add-btn").forEach(btn => btn.addEventListener("click", e => {
+    e.preventDefault();
+    const id = btn.dataset.id;
+    const p = PRODUCTS.find(x => x.id === id);
+    if (p) {
+      Cart.add(p, 1);
+      toast(`${p.title} added to cart`);
+    }
+  }));
+}
+
+// INIT
+document.addEventListener("DOMContentLoaded", () => {
+  // populate areas
+  renderProducts();
+  renderProductPage();
+  wireUI();
+  wireForms();
+  updateCartUI();
+
+  // ensure add-btn listeners (renderProducts run earlier)
+  $$(".add-btn").forEach(btn => btn.addEventListener("click", e => {
+    e.preventDefault();
+    const id = btn.dataset.id;
+    const p = PRODUCTS.find(x => x.id === id);
+    if (p) { Cart.add(p,1); toast(`${p.title} added to cart`); }
+  }));
+
+  // cart item removal will be wired by updateCartUI after changes
+  // footer year
+  document.getElementById("year")?.textContent = new Date().getFullYear();
+});
+
+// Checkout (demo)
+document.addEventListener("click", function (e) {
+  if (e.target && e.target.id === "checkout") {
+    e.preventDefault();
+    if (Cart.items.length === 0) { toast("Your cart is empty"); return; }
+    // In production push to payment flow (Stripe / checkout)
+    toast("Redirecting to checkout (demo)");
+    // Clear cart for demo
+    Cart.clear();
+  }
+});
